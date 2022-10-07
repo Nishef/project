@@ -1,0 +1,6 @@
+*.csv
+*.dvcignore
+*.db
+*.xml
+*.iml
+*.json
