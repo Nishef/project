@@ -14,7 +14,8 @@ import LSTM_Func
 reload(LSTM_Func)
 pre = LSTM_Func.Preprocessing()
 # %%
-data1 = pd.read_csv("btc_eth_to_d.csv")
+data1 = pd.read_csv("btc&eth_1.csv",parse_dates=['datetime'])
+# data1['date'] = pd.to_datetime(data1['date'],format='%d/%m/%Y',utc=False)
 # data2 = pd.read_csv("btc_eth_1.csv",parse_dates=['date'])
 # data1=data1.drop_duplicates()
 # data15 = pd.read_csv("btc_eth_15.csv")
@@ -23,6 +24,7 @@ data1 = pd.read_csv("btc_eth_to_d.csv")
 # data1=data1.sort_values(data1['date'])
 #%%
 # data1 = data1[-64888:].reset_index()
+# data1.drop(data1['date'],inplace=True)
 #%%
 # data1.to_csv("btc_eth_to_d.csv",index=False)
 # %%
@@ -36,13 +38,14 @@ df2=pd.DataFrame({'x':x["close"], 'y':y["close_eth"]})
 # spread = x - y
 # %%
 # st.coint(data1['per_close_btc'], data1['per_close_eth'])
-(a/b).plot(figsize=(15,7)) 
-plt.axhline((a/b).mean(), color='red', linestyle='--') 
+ratios = a / b
+ratios.plot(figsize=(15,7)) 
+plt.axhline(ratios.mean(), color='red', linestyle='--') 
 plt.xlabel('Time')
 plt.legend(['Price Ratio', 'Mean'])
 plt.show()
 #%%
-st.coint(a, b)
+st.coint(a[-1200:], b[-1200:])
 # The null hypothesis of r=0 means no cointegration relationship; r<=1 means up to one cointegration relationship, and so on.
 # x = getx() # dataframe of n series for cointegration analysis
 # jres = coint_johansen(df, det_order=0, k_ar_diff=1)
@@ -53,7 +56,6 @@ st.coint(a, b)
 # v1 = jres.evec[:, 0]
 # v2 = jres.evec[:, 1]
 #%%
-ratios = a / b
 ratios.plot(figsize=(15,7))
 plt.plot()
 plt.axhline(ratios.mean())
@@ -127,15 +129,19 @@ plt.show()
 # Plot the ratios and buy and sell signals from z score
 plt.figure(figsize=(15,7))
 
-plt.plot(ratios[-200:])
+plt.plot(ratios[-300:])
+# Creating a buy and sell signal based on the z-score.
 buy = ratios.copy()
 sell = ratios.copy()
-buy[zscore_60_5>-1] = 0
-sell[zscore_60_5<1] = 0
-buy[-200:].plot(color='g', linestyle='None', marker='^')
-sell[-200:].plot(color='r', linestyle='None', marker='*')
+hold = ratios.copy()
+buy[zscore_60_5>-1] = 1
+sell[zscore_60_5<1] = -1
+hold[zscore_60_5>1]=0
+hold[zscore_60_5<-1]=0
+buy[-300:].plot(color='g', linestyle='None', marker='^')
+sell[-300:].plot(color='r', linestyle='None', marker='*')
 x1,x2,y1,y2 = plt.axis()
-plt.axis((x1,x2,ratios[-200:].min(),ratios[-200:].max()))
+plt.axis((x1,x2,ratios[-300:].min(),ratios[-300:].max()))
 plt.legend(['Ratio', 'Buy Signal', 'Sell Signal'])
 plt.show()
 
